@@ -190,3 +190,124 @@ export default function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [playing]);
+
+  /* -------------------- UI blocks -------------------- */
+  const Transport = () => (
+    <div className={`card h-100 ${playing ? 'playing' : ''}`}>
+      <div className="card-body">
+        <h5 className="card-title mb-3"><span className="play-led"/>Transport</h5>
+
+        <div className="row g-2 mb-3">
+          <div className="col-6 d-grid">
+            <button className="btn btn-success" onClick={handlePlay} disabled={playing}>▶ Play</button>
+          </div>
+
+          {/* Stop is always clickable (more robust) */}
+          <div className="col-6 d-grid">
+            <button className="btn btn-outline-light" onClick={handleStop}>■ Stop</button>
+          </div>
+
+          <div className="col-6 d-grid">
+            <button className="btn btn-accent" onClick={handlePreprocess}>⚙ Preprocess → REPL</button>
+          </div>
+          <div className="col-6 d-grid">
+            <button className="btn btn-ghost" onClick={handleReset}>↺ Reset</button>
+          </div>
+
+          {/* Panic mute */}
+          <div className="col-12 d-grid">
+            <button className="btn btn-danger" onClick={handleMute}>🔇 Mute</button>
+          </div>
+        </div>
+
+        <label className="form-label">Tempo: {ui.tempo} BPM</label>
+        <input
+          type="range" min={40} max={220} className="form-range mb-3"
+          value={ui.tempo}
+          onChange={e=>setUi(s=>({...s, tempo:Number(e.target.value)||120}))}
+        />
+
+        <small className="text-secondary">Hotkey: <kbd>Space</kbd> play/stop</small>
+      </div>
+    </div>
+  );
+
+  const ControlPanel = () => (
+    <div className="card h-100">
+      <div className="card-body">
+        <h5 className="card-title">Preprocessor Controls</h5>
+        <p className="text-secondary small">
+          Hush radios work without tags; tempo updates live while playing.
+        </p>
+
+        <div className="mb-3">
+          <h6 className="mb-2">Instruments (Hush)</h6>
+          {['p1','p2'].map(k => (
+            <div className="mb-2" key={k}>
+              <label className="form-label text-uppercase mb-1">{k}</label>
+              <div className="btn-group w-100" role="group">
+                <input type="radio" className="btn-check" name={`r-${k}`} id={`${k}-on`}
+                       checked={ui.instruments[k]==='on'}
+                       onChange={()=>setUi(s=>({...s, instruments:{...s.instruments,[k]:'on'}}))}/>
+                <label className={`btn ${ui.instruments[k]==='on'?'btn-primary':'btn-outline-primary'}`} htmlFor={`${k}-on`}>On</label>
+
+                <input type="radio" className="btn-check" name={`r-${k}`} id={`${k}-hush`}
+                       checked={ui.instruments[k]==='hush'}
+                       onChange={()=>setUi(s=>({...s, instruments:{...s.instruments,[k]:'hush'}}))}/>
+                <label className={`btn ${ui.instruments[k]==='hush'?'btn-primary':'btn-outline-primary'}`} htmlFor={`${k}-hush`}>Hush</label>
+              </div>
+              <div className="form-text">Maps {k} → d{ k === 'p1' ? '1' : '2' } (replaces line with <code>silence</code> when Hush)</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const Editor = () => (
+    <div className="card h-100">
+      <div className="card-body">
+        <h5 className="card-title mb-2">Preprocessor Editor</h5>
+        <textarea className="form-control code" spellCheck={false} value={song}
+                  onChange={e=>setSong(e.target.value)}/>
+      </div>
+    </div>
+  );
+
+  const Output = () => (
+    <div className="card h-100">
+      <div className="card-body">
+        <h5 className="card-title">Processed Output</h5>
+        <textarea className="form-control code" readOnly value={processed}/>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="app-shell">
+      <Header />
+
+      <main className="container py-3">
+        <div className="row g-3">
+          <div className="col-12 col-lg-4"><Transport/></div>
+          <div className="col-12 col-lg-8"><ControlPanel/></div>
+
+          <div className="col-12 col-xl-6"><Editor/></div>
+
+          {/* REPL mounts here (required for Play/Stop/Preprocess) */}
+          <div className="col-12 col-xl-6">
+            <div id="editor" className="card h-100">{/* StrudelMirror mounts here */}</div>
+          </div>
+
+          <div className="col-12 col-xl-6"><Output/></div>
+        </div>
+
+        <div className="mt-3"><canvas id="roll" ref={canvasRef}></canvas></div>
+      </main>
+
+      <footer className="py-3 text-center">
+        <span className="badge-dot">React • Bootstrap • Strudel</span>
+      </footer>
+    </div>
+  );
+}
