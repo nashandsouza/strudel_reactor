@@ -1,4 +1,3 @@
-// src/components/Settings.jsx
 import React, { useRef, useState } from 'react';
 import { downloadJSON, readJSONFile } from '../utils/storage';
 
@@ -27,7 +26,7 @@ export default function Settings({ ui, song, onImport }) {
     onImport(data);
     setStatus('Settings imported.');
     setTimeout(()=>setStatus(''), 1500);
-    e.target.value = ''; // allow re-upload of same file
+    e.target.value = '';
   };
 
   return (

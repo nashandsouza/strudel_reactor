@@ -38,6 +38,6 @@ export function applyTempo(str, bpm) {
     
     
     text = applyTempo(text, state.tempo);
-    text = applyInstrumentHush(text, state.instruments); // hush wins
+    text = applyInstrumentHush(text, state.instruments);
     return text;
     }
