@@ -42,7 +42,6 @@ export default function App() {
   }, [playing]);
 
   const handlePlay = async () => {
-    // if currently muted, resume audio when playing
     if (isMuted) {
       await REPL.resume?.();
       setIsMuted(false);
@@ -56,18 +55,14 @@ export default function App() {
     setPlaying(false);
   };
 
-  // 🔁 Mute/unmute toggle
   const handleMuteToggle = async () => {
     if (!isMuted) {
-      REPL.hushAll?.();      // silence patterns immediately
-      await REPL.suspend?.(); // suspend audio context
+      REPL.hushAll?.();
+      await REPL.suspend?.();
       setIsMuted(true);
     } else {
-      await REPL.resume?.();  // resume audio context
-      if (playing) {
-        try { REPL.evaluate?.(); } catch {}
-        // or: await REPL.play(processed);
-      }
+      await REPL.resume?.();
+      if (playing) { try { REPL.evaluate?.(); } catch {} }
       setIsMuted(false);
     }
   };
@@ -101,10 +96,10 @@ export default function App() {
               onStop={handleStop}
               onPreprocess={handlePreprocess}
               onReset={handleReset}
-              onMute={handleMuteToggle} 
+              onMute={handleMuteToggle}
               tempo={ui.tempo}
               onTempo={(val)=>setUi(s=>({...s, tempo: val}))}
-              isMuted={isMuted} 
+              isMuted={isMuted}
             />
           </div>
 
@@ -132,20 +127,20 @@ export default function App() {
           </div>
         </div>
 
-        {/* REPL mounts here */}
+        {/* REPL editor mount */}
         <div id="editor" className="card h-100 mb-3">{/* StrudelMirror mounts here */}</div>
 
-        {/* Editor + Output */}
+        {/* Editor + Output + Visualization */}
         <div className="row g-3">
           <div className="col-12 col-xl-6">
             <Editor song={song} setSong={setSong} />
           </div>
-          <div className="col-12 col-xl-6">
+
+          <div className="col-12 col-xl-6 d-flex flex-column gap-3">
             <Output processed={processed} />
+            <StrudelCanvas canvasRef={REPL.canvasRef} />
           </div>
         </div>
-
-        <StrudelCanvas canvasRef={REPL.canvasRef} />
       </main>
 
       <footer className="py-3 text-center">

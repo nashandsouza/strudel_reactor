@@ -14,6 +14,7 @@ export default function ControlPanel({ ui, setUi }) {
     <label className={`btn ${ui.instruments[k]==='on'?'btn-primary':'btn-outline-primary'}`} htmlFor={`${k}-on`}>On</label>
     <input type="radio" className="btn-check" name={`r-${k}`} id={`${k}-hush`} checked={ui.instruments[k]==='hush'} onChange={()=>setUi(s=>({...s, instruments:{...s.instruments,[k]:'hush'}}))}/>
     <label className={`btn ${ui.instruments[k]==='hush'?'btn-primary':'btn-outline-primary'}`} htmlFor={`${k}-hush`}>Hush</label>
+    
     </div>
     <div className="form-text">Maps {k} → d{ k === 'p1' ? '1' : '2' } (replaces line with <code>silence</code> when Hush)</div>
     </div>
