@@ -12,6 +12,8 @@ import { preprocess } from './utils/preprocess';
 import { DEFAULT_STATE } from './utils/constants';
 import { loadState, saveState } from './utils/storage';
 import { stranger_tune } from './tunes';
+import TempoGraph from './components/TempoGraph';
+
 
 export default function App() {
   const REPL = useStrudelRepl();
@@ -19,6 +21,8 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [song, setSong] = useState(stranger_tune);
   const [ui, setUi] = useState(() => loadState(DEFAULT_STATE));
+  const [tempoHistory, setTempoHistory] = useState([]);
+
 
   const processed = useMemo(() => preprocess(song, ui), [song, ui]);
 
@@ -40,6 +44,15 @@ export default function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [playing]);
+
+
+  useEffect(() => {
+    setTempoHistory(prev => {
+      const next = [...prev, ui.tempo];
+      return next.length > 100 ? next.slice(next.length - 100) : next;
+    });
+  }, [ui.tempo]);
+
 
   const handlePlay = async () => {
     if (isMuted) {
@@ -137,9 +150,11 @@ export default function App() {
           </div>
 
           <div className="col-12 col-xl-6 d-flex flex-column gap-3">
-            <Output processed={processed} />
-            <StrudelCanvas canvasRef={REPL.canvasRef} />
-          </div>
+  <Output processed={processed} />
+  <StrudelCanvas canvasRef={REPL.canvasRef} />
+  <TempoGraph data={tempoHistory} /> 
+</div>
+
         </div>
       </main>
 
