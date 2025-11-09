@@ -12,8 +12,7 @@ import { preprocess } from './utils/preprocess';
 import { DEFAULT_STATE } from './utils/constants';
 import { loadState, saveState } from './utils/storage';
 import { stranger_tune } from './tunes';
-import TempoGraph from './components/TempoGraph';
-
+import SoundBars from './components/SoundBars';
 
 export default function App() {
   const REPL = useStrudelRepl();
@@ -21,8 +20,7 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [song, setSong] = useState(stranger_tune);
   const [ui, setUi] = useState(() => loadState(DEFAULT_STATE));
-  const [tempoHistory, setTempoHistory] = useState([]);
-
+  const [bands, setBands] = useState([0, 0, 0, 0]); // D3 sound levels
 
   const processed = useMemo(() => preprocess(song, ui), [song, ui]);
 
@@ -32,7 +30,9 @@ export default function App() {
     if (playing) REPL.evaluate();
   }, [processed, playing, REPL]);
 
-  useEffect(() => { saveState(ui); }, [ui]);
+  useEffect(() => {
+    saveState(ui);
+  }, [ui]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -45,14 +45,14 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [playing]);
 
-
+  // Poll live levels from Strudel REPL for the D3 bars
   useEffect(() => {
-    setTempoHistory(prev => {
-      const next = [...prev, ui.tempo];
-      return next.length > 100 ? next.slice(next.length - 100) : next;
-    });
-  }, [ui.tempo]);
-
+    const id = setInterval(() => {
+      if (!REPL || !REPL.levels) return;
+      setBands(REPL.levels);
+    }, 100); // ~10 fps
+    return () => clearInterval(id);
+  }, [REPL]);
 
   const handlePlay = async () => {
     if (isMuted) {
@@ -75,7 +75,11 @@ export default function App() {
       setIsMuted(true);
     } else {
       await REPL.resume?.();
-      if (playing) { try { REPL.evaluate?.(); } catch {} }
+      if (playing) {
+        try {
+          REPL.evaluate?.();
+        } catch {}
+      }
       setIsMuted(false);
     }
   };
@@ -111,7 +115,7 @@ export default function App() {
               onReset={handleReset}
               onMute={handleMuteToggle}
               tempo={ui.tempo}
-              onTempo={(val)=>setUi(s=>({...s, tempo: val}))}
+              onTempo={(val) => setUi((s) => ({ ...s, tempo: val }))}
               isMuted={isMuted}
             />
           </div>
@@ -128,7 +132,7 @@ export default function App() {
               ui={ui}
               song={song}
               onImport={(data) => {
-                if (data?.ui) setUi(prev => ({ ...prev, ...data.ui }));
+                if (data?.ui) setUi((prev) => ({ ...prev, ...data.ui }));
                 if (typeof data?.song === 'string') setSong(data.song);
                 if (REPL.instance) {
                   const code = preprocess(data?.song ?? song, data?.ui ?? ui);
@@ -141,7 +145,9 @@ export default function App() {
         </div>
 
         {/* REPL editor mount */}
-        <div id="editor" className="card h-100 mb-3">{/* StrudelMirror mounts here */}</div>
+        <div id="editor" className="card h-100 mb-3">
+          {/* StrudelMirror mounts here */}
+        </div>
 
         {/* Editor + Output + Visualization */}
         <div className="row g-3">
@@ -150,11 +156,10 @@ export default function App() {
           </div>
 
           <div className="col-12 col-xl-6 d-flex flex-column gap-3">
-  <Output processed={processed} />
-  <StrudelCanvas canvasRef={REPL.canvasRef} />
-  <TempoGraph data={tempoHistory} /> 
-</div>
-
+            <Output processed={processed} />
+            <StrudelCanvas canvasRef={REPL.canvasRef} />
+            <SoundBars bands={bands} />
+          </div>
         </div>
       </main>
 
