@@ -20,7 +20,9 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [song, setSong] = useState(stranger_tune);
   const [ui, setUi] = useState(() => loadState(DEFAULT_STATE));
-  const [bands, setBands] = useState([0, 0, 0, 0]); // D3 sound levels
+
+  // NEW: 4-band D3 graph values
+  const [bands, setBands] = useState([0, 0, 0, 0]);
 
   const processed = useMemo(() => preprocess(song, ui), [song, ui]);
 
@@ -45,12 +47,12 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [playing]);
 
-  // Poll live levels from Strudel REPL for the D3 bars
+  // Poll sound levels for D3 graph
   useEffect(() => {
     const id = setInterval(() => {
       if (!REPL || !REPL.levels) return;
       setBands(REPL.levels);
-    }, 100); // ~10 fps
+    }, 100);
     return () => clearInterval(id);
   }, [REPL]);
 
@@ -76,9 +78,7 @@ export default function App() {
     } else {
       await REPL.resume?.();
       if (playing) {
-        try {
-          REPL.evaluate?.();
-        } catch {}
+        try { REPL.evaluate?.(); } catch {}
       }
       setIsMuted(false);
     }
@@ -104,9 +104,11 @@ export default function App() {
       <Header />
 
       <main className="container py-3">
-        {/* TOP ROW: Transport + Controls */}
-        <div className="row g-3 mb-3">
-          <div className="col-12 col-lg-4">
+
+        <div className="row g-3 mb-3 align-items-stretch">
+
+          {/* LEFT: Transport */}
+          <div className="col-12 col-xl-3">
             <Transport
               playing={playing}
               onPlay={handlePlay}
@@ -120,12 +122,15 @@ export default function App() {
             />
           </div>
 
-          <div className="col-12 col-lg-8">
+          <div className="col-12 col-xl-5">
             <ControlPanel ui={ui} setUi={setUi} />
+          </div>
+
+          <div className="col-12 col-xl-4">
+            <SoundBars bands={bands} />
           </div>
         </div>
 
-        {/* SETTINGS BAR */}
         <div className="row g-3 mb-3">
           <div className="col-12">
             <Settings
@@ -144,13 +149,11 @@ export default function App() {
           </div>
         </div>
 
-        {/* REPL editor mount */}
         <div id="editor" className="card h-100 mb-3">
-          {/* StrudelMirror mounts here */}
         </div>
 
-        {/* Editor + Output + Visualization */}
         <div className="row g-3">
+
           <div className="col-12 col-xl-6">
             <Editor song={song} setSong={setSong} />
           </div>
@@ -158,8 +161,8 @@ export default function App() {
           <div className="col-12 col-xl-6 d-flex flex-column gap-3">
             <Output processed={processed} />
             <StrudelCanvas canvasRef={REPL.canvasRef} />
-            <SoundBars bands={bands} />
           </div>
+
         </div>
       </main>
 
