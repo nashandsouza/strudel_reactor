@@ -29,7 +29,7 @@ export default function ControlPanel({ ui, setUi }) {
           {/* ============================================================
               INSTRUMENT HUSH (P1 / P2)
           ============================================================ */}
-          <h6 className="text-muted mb-2">Instrument Routing</h6>
+          <h6 className="text-primary mb-2">Instrument Routing</h6>
   
           {["p1", "p2"].map((k) => (
             <div className="mb-3" key={k}>
@@ -63,7 +63,7 @@ export default function ControlPanel({ ui, setUi }) {
                 </label>
               </div>
   
-              <small className="text-muted">
+              <small className="text-info">
                 Maps {k} → d{k === "p1" ? "1" : "2"} (silence on hush)
               </small>
             </div>
@@ -74,7 +74,7 @@ export default function ControlPanel({ ui, setUi }) {
           {/* ============================================================
               SONG SECTIONS (Bass / Lead / Drums / Drums2)
           ============================================================ */}
-          <h6 className="text-muted mb-2">Song Sections From Tune</h6>
+          <h6 className="text-info mb-2">Song Sections From Tune</h6>
   
           <ul className="list-group">
             <li className="list-group-item d-flex justify-content-between align-items-center">
@@ -130,7 +130,7 @@ export default function ControlPanel({ ui, setUi }) {
             </li>
           </ul>
   
-          <small className="text-muted d-block mt-2">
+          <small className="text-info d-block mt-2">
             Toggles sections defined in <code>tunes.js</code>
           </small>
         </div>
