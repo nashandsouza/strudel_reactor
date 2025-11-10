@@ -149,7 +149,9 @@ export default function App() {
           </div>
         </div>
 
-        <div id="editor" className="card h-100 mb-3">
+
+        {/* h-100 */}
+        <div id="editor" className="card mb-3"> 
         </div>
 
         <div className="row g-3">

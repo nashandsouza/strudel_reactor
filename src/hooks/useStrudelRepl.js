@@ -17,15 +17,22 @@ export function useStrudelRepl() {
   const canvasRef = useRef(null);
   const [playing, setPlaying] = useState(false);
 
-  // NEW: simple “EQ” bands (0–1 values)
+  // simple “EQ” bands (0–1 values) for D3 graph
   const [levels, setLevels] = useState([0, 0, 0, 0]);
+
+  // guard to avoid double init under React 18 StrictMode
+  const initDoneRef = useRef(false);
 
   // Initialise REPL once the editor mount point AND canvas exist
   useEffect(() => {
+    // if we've already created the REPL once, don't do it again
+    if (initDoneRef.current) return;
+
     let cancelled = false;
 
     const tryInit = () => {
-      if (cancelled) return;
+      if (cancelled || initDoneRef.current) return;
+
       const mount = document.getElementById('editor');
       const canvas = canvasRef.current;
 
@@ -34,7 +41,6 @@ export function useStrudelRepl() {
         return;
       }
 
-      // Create REPL
       const drawTime = [-2, 2];
 
       replRef.current = new StrudelMirror({
@@ -58,12 +64,11 @@ export function useStrudelRepl() {
             drawPianoroll({ haps, time, ctx, drawTime, fold: 0 });
           } catch {}
 
-          // ---- NEW: update “audio activity” levels for D3 bar graph ----
-          // We treat the number of haps as “how busy the pattern is”
+          // ---- update “audio activity” levels for D3 bar graph ----
           const count = Array.isArray(haps) ? haps.length : 0;
           const norm = Math.max(0, Math.min(1, count / 32)); // clamp 0..1
 
-          setLevels(prev => {
+          setLevels((prev) => {
             const smooth = (prevVal, target, factor = 0.4) =>
               prevVal + (target - prevVal) * factor;
 
@@ -77,9 +82,9 @@ export function useStrudelRepl() {
               smooth(b3, base * 0.6), // “FX”
             ];
 
-            return next.map(v => Math.max(0, Math.min(1, v)));
+            return next.map((v) => Math.max(0, Math.min(1, v)));
           });
-          // ----------------------------------------------------------------
+          // ---------------------------------------------------------
         },
         prebake: async () => {
           initAudioOnFirstClick();
@@ -93,6 +98,19 @@ export function useStrudelRepl() {
           await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
         },
       });
+
+      // ✅ Tweak editor height so it only uses needed space
+      requestAnimationFrame(() => {
+        const editorEl = mount.querySelector('.cm-editor');
+        if (editorEl) {
+          editorEl.style.height = 'auto';
+          editorEl.style.maxHeight = '320px';   // cap so it never takes over the page
+          editorEl.style.overflow = 'auto';     // scroll if it gets long
+        }
+      });
+
+      // mark as initialised so StrictMode's second effect run does nothing
+      initDoneRef.current = true;
     };
 
     tryInit();
@@ -101,8 +119,12 @@ export function useStrudelRepl() {
       cancelled = true;
       const REPL = replRef.current;
       if (!REPL) return;
-      try { if (typeof REPL.hush === 'function') REPL.hush(); } catch {}
-      try { if (typeof REPL.stop === 'function') REPL.stop(); } catch {}
+      try {
+        if (typeof REPL.hush === 'function') REPL.hush();
+      } catch {}
+      try {
+        if (typeof REPL.stop === 'function') REPL.stop();
+      } catch {}
       replRef.current = null;
     };
   }, []);
@@ -118,7 +140,7 @@ export function useStrudelRepl() {
       return playing;
     },
 
-    // NEW: expose live levels for the D3 bar chart
+    // expose live levels for the D3 bar chart
     get levels() {
       return levels;
     },
@@ -126,37 +148,61 @@ export function useStrudelRepl() {
     async play(code) {
       const REPL = replRef.current;
       if (!REPL) return;
-      try { await getAudioContext().resume(); } catch {}
+      try {
+        await getAudioContext().resume();
+      } catch {}
       if (code) REPL.setCode(code);
       setPlaying(true);
-      try { REPL.evaluate(); } catch {}
+      try {
+        REPL.evaluate();
+      } catch {}
     },
 
     async stop() {
       const REPL = replRef.current;
       if (!REPL) return;
-      try { if (typeof REPL.hush === 'function') REPL.hush(); } catch {}
-      try { if (typeof REPL.stop === 'function') REPL.stop(); } catch {}
-      try { REPL.setCode('d1 silence\nd2 silence'); REPL.evaluate(); } catch {}
+      try {
+        if (typeof REPL.hush === 'function') REPL.hush();
+      } catch {}
+      try {
+        if (typeof REPL.stop === 'function') REPL.stop();
+      } catch {}
+      try {
+        REPL.setCode('d1 silence\nd2 silence');
+        REPL.evaluate();
+      } catch {}
       setPlaying(false);
-      try { await getAudioContext().suspend(); } catch {}
+      try {
+        await getAudioContext().suspend();
+      } catch {}
     },
 
     // Strong hush without changing playing state
     hushAll() {
       const REPL = replRef.current;
       if (!REPL) return;
-      try { if (typeof REPL.hush === 'function') REPL.hush(); } catch {}
-      try { if (typeof REPL.stop === 'function') REPL.stop(); } catch {}
-      try { REPL.setCode('d1 silence\nd2 silence'); REPL.evaluate(); } catch {}
+      try {
+        if (typeof REPL.hush === 'function') REPL.hush();
+      } catch {}
+      try {
+        if (typeof REPL.stop === 'function') REPL.stop();
+      } catch {}
+      try {
+        REPL.setCode('d1 silence\nd2 silence');
+        REPL.evaluate();
+      } catch {}
     },
 
     async suspend() {
-      try { await getAudioContext().suspend(); } catch {}
+      try {
+        await getAudioContext().suspend();
+      } catch {}
     },
 
     async resume() {
-      try { await getAudioContext().resume(); } catch {}
+      try {
+        await getAudioContext().resume();
+      } catch {}
     },
 
     setCode(code) {
@@ -166,7 +212,11 @@ export function useStrudelRepl() {
 
     evaluate() {
       const REPL = replRef.current;
-      if (REPL) { try { REPL.evaluate(); } catch {} }
+      if (REPL) {
+        try {
+          REPL.evaluate();
+        } catch {}
+      }
     },
   };
 
