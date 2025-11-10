@@ -1,10 +1,11 @@
 // src/components/SoundBars.jsx
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import StrudelCanvas from './StrudelCanvas';
 
 const LABELS = ['Bass', 'Lead', 'Drums', 'FX'];
 
-export default function SoundBars({ bands = [] }) {
+export default function SoundBars({ bands = [], canvasRef }) {
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -24,6 +25,40 @@ export default function SoundBars({ bands = [] }) {
       value: Math.max(0, Math.min(1, v || 0)),
     }));
 
+    // Clear previous content
+    svg.selectAll('*').remove();
+
+    // ---- Gradient definition: yellow (bottom) → orange (top) ----
+    const defs = svg.append('defs');
+    const grad = defs
+      .append('linearGradient')
+      .attr('id', 'warmBarGradient')
+      .attr('x1', '0%')
+      .attr('y1', '100%') // bottom
+      .attr('x2', '0%')
+      .attr('y2', '0%');  // top
+
+    // Bottom: yellow, Top: orange
+    grad.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#facc15'); // yellow
+
+    grad.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#f97316'); // orange
+    // ------------------------------------------------------------
+
+    // Background card area in SVG
+    svg
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', width)
+      .attr('height', height)
+      .attr('rx', 12)
+      .attr('ry', 12)
+      .attr('fill', '#0b0f17');
+
     // Scales
     const x = d3
       .scaleBand()
@@ -36,23 +71,9 @@ export default function SoundBars({ bands = [] }) {
       .domain([0, 1])
       .range([height - paddingBottom, paddingTop]);
 
-    // Clear previous content
-    svg.selectAll('*').remove();
-
-    // Background
-    svg
-      .append('rect')
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', width)
-      .attr('height', height)
-      .attr('rx', 12)
-      .attr('ry', 12)
-      .attr('fill', '#0b0f17');
-
-    // Bars
     const barGroup = svg.append('g');
 
+    // Bars with warm gradient fill
     barGroup
       .selectAll('rect.bar')
       .data(data)
@@ -65,9 +86,10 @@ export default function SoundBars({ bands = [] }) {
       .attr('height', d => y(0) - y(d.value))
       .attr('rx', 6)
       .attr('ry', 6)
-      .attr('fill', 'var(--accent)');
+      .attr('fill', 'url(#warmBarGradient)')
+      .attr('opacity', d => 0.3 + d.value * 0.7); // stronger colour when bar is high
 
-    // Value “caps” on top of bars (for a bit of flair)
+    // Optional glow “cap” on top of bars
     barGroup
       .selectAll('circle.cap')
       .data(data)
@@ -77,7 +99,7 @@ export default function SoundBars({ bands = [] }) {
       .attr('cx', d => x(d.name) + x.bandwidth() / 2)
       .attr('cy', d => y(d.value))
       .attr('r', 4)
-      .attr('fill', 'var(--success)');
+      .attr('fill', '#fed7aa'); // soft light orange
 
     // Labels
     const labelGroup = svg.append('g');
@@ -98,12 +120,24 @@ export default function SoundBars({ bands = [] }) {
 
   return (
     <div className="card h-100">
-      <div className="card-body">
-        <h5 className="card-title mb-1">Live Levels</h5>
+      <div className="card-body d-flex flex-column">
+        <h5 className="card-title mb-1 text-light">Live Levels</h5>
         <p className="text-secondary small mb-2">
           Bars react to how busy your Strudel pattern is (bass / lead / drums / FX).
         </p>
-        <svg ref={svgRef} style={{ width: '100%', height: '160px', display: 'block' }} />
+
+        {/* D3 bar graph */}
+        <svg
+          ref={svgRef}
+          style={{ width: '100%', height: '160px', display: 'block' }}
+        />
+
+        {/* Piano roll directly under graph, in SAME card */}
+        <div className="mt-3 flex-grow-1 d-flex">
+          <div className="w-100">
+            <StrudelCanvas canvasRef={canvasRef} />
+          </div>
+        </div>
       </div>
     </div>
   );

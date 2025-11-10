@@ -21,7 +21,7 @@ export default function App() {
   const [song, setSong] = useState(stranger_tune);
   const [ui, setUi] = useState(() => loadState(DEFAULT_STATE));
 
-  // NEW: 4-band D3 graph values
+  // 4-band D3 graph values
   const [bands, setBands] = useState([0, 0, 0, 0]);
 
   const processed = useMemo(() => preprocess(song, ui), [song, ui]);
@@ -122,15 +122,18 @@ export default function App() {
             />
           </div>
 
+          {/* MIDDLE: Controls */}
           <div className="col-12 col-xl-5">
             <ControlPanel ui={ui} setUi={setUi} />
           </div>
 
+          {/* RIGHT: D3 Graph + Piano Roll in the SAME card */}
           <div className="col-12 col-xl-4">
-            <SoundBars bands={bands} />
+            <SoundBars bands={bands} canvasRef={REPL.canvasRef} />
           </div>
         </div>
 
+        {/* SETTINGS */}
         <div className="row g-3 mb-3">
           <div className="col-12">
             <Settings
@@ -149,11 +152,12 @@ export default function App() {
           </div>
         </div>
 
-
-        {/* h-100 */}
-        <div id="editor" className="card mb-3"> 
+        {/* STRUDEL REPL MOUNT */}
+        <div id="editor" className="card mb-3">
+          {/* StrudelMirror mounts here */}
         </div>
 
+        {/* EDITOR + OUTPUT */}
         <div className="row g-3">
 
           <div className="col-12 col-xl-6">
@@ -162,7 +166,7 @@ export default function App() {
 
           <div className="col-12 col-xl-6 d-flex flex-column gap-3">
             <Output processed={processed} />
-            <StrudelCanvas canvasRef={REPL.canvasRef} />
+            {/* Piano roll moved into SoundBars card above */}
           </div>
 
         </div>

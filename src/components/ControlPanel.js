@@ -22,9 +22,8 @@ export default function ControlPanel({ ui, setUi }) {
         <div className="card-body">
   
           {/* TITLE */}
-          <h5 className="card-title mb-3 d-flex justify-content-between">
+          <h5 className="card-title mb-3 d-flex justify-content-between text-light">
             <span>Preprocessor Controls</span>
-            <span className="badge bg-secondary">Bootstrap UI</span>
           </h5>
   
           {/* ============================================================

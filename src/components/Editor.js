@@ -5,17 +5,19 @@ export function Editor({ song, setSong }) {
   return (
     <div className="card">
       <div className="card-body">
-        <h5 className="card-title mb-2">Preprocessor Editor</h5>
+        <h5 className="card-title mb-2 text-light">Preprocessor Editor</h5>
+
         <textarea
           className="form-control code"
           spellCheck={false}
           value={song}
           onChange={(e) => setSong(e.target.value)}
-          rows={8} // visual hint, real height controlled by style
+          rows={12}
           style={{
-            minHeight: '160px',
-            maxHeight: '160px',
+            minHeight: '320px',
+            maxHeight: '320px',
             overflow: 'auto',
+            resize: 'vertical', // optional: allow dragging height
           }}
         />
       </div>

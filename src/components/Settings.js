@@ -36,7 +36,7 @@ export default function Settings({ ui, song, onImport }) {
   return (
     <div className="card">
       <div className="card-body d-flex flex-wrap align-items-center justify-content-between">
-        <h6 className="mb-0">Settings</h6>
+        <h6 className="mb-0 text-light">Settings</h6>
 
         {/* Dropdown */}
         <div className="dropdown">

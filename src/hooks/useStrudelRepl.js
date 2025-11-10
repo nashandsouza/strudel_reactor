@@ -17,21 +17,15 @@ export function useStrudelRepl() {
   const canvasRef = useRef(null);
   const [playing, setPlaying] = useState(false);
 
-  // simple “EQ” bands (0–1 values) for D3 graph
+  // “EQ” bands (0–1 values) for D3 graph
   const [levels, setLevels] = useState([0, 0, 0, 0]);
-
-  // guard to avoid double init under React 18 StrictMode
-  const initDoneRef = useRef(false);
 
   // Initialise REPL once the editor mount point AND canvas exist
   useEffect(() => {
-    // if we've already created the REPL once, don't do it again
-    if (initDoneRef.current) return;
-
     let cancelled = false;
 
     const tryInit = () => {
-      if (cancelled || initDoneRef.current) return;
+      if (cancelled) return;
 
       const mount = document.getElementById('editor');
       const canvas = canvasRef.current;
@@ -42,6 +36,21 @@ export function useStrudelRepl() {
       }
 
       const drawTime = [-2, 2];
+
+      // 🧹 IMPORTANT: clear any previous REPL DOM to avoid duplicate editors
+      // (React 18 StrictMode runs effects twice in dev)
+      try {
+        if (replRef.current) {
+          if (typeof replRef.current.hush === 'function') {
+            replRef.current.hush();
+          }
+          if (typeof replRef.current.stop === 'function') {
+            replRef.current.stop();
+          }
+        }
+      } catch {}
+      replRef.current = null;
+      mount.innerHTML = '';
 
       replRef.current = new StrudelMirror({
         defaultOutput: webaudioOutput,
@@ -55,11 +64,11 @@ export function useStrudelRepl() {
           const ctx = c.getContext('2d');
           if (!ctx) return;
 
-          // Clear (background matches your dark theme)
+          // Clear background
           ctx.fillStyle = '#0b0f17';
           ctx.fillRect(0, 0, c.width, c.height);
 
-          // Use Strudel's helper to draw the piano roll
+          // Draw piano roll
           try {
             drawPianoroll({ haps, time, ctx, drawTime, fold: 0 });
           } catch {}
@@ -76,10 +85,10 @@ export function useStrudelRepl() {
             const base = norm || 0;
 
             const next = [
-              smooth(b0, base * 1.0), // “Bass”
-              smooth(b1, base * 0.8), // “Lead”
-              smooth(b2, base * 1.2), // “Drums”
-              smooth(b3, base * 0.6), // “FX”
+              smooth(b0, base * 1.0), // Bass
+              smooth(b1, base * 0.8), // Lead
+              smooth(b2, base * 1.2), // Drums
+              smooth(b3, base * 0.6), // FX
             ];
 
             return next.map((v) => Math.max(0, Math.min(1, v)));
@@ -99,18 +108,15 @@ export function useStrudelRepl() {
         },
       });
 
-      // ✅ Tweak editor height so it only uses needed space
+      // Keep the Strudel editor compact + scrollable
       requestAnimationFrame(() => {
         const editorEl = mount.querySelector('.cm-editor');
         if (editorEl) {
           editorEl.style.height = 'auto';
-          editorEl.style.maxHeight = '320px';   // cap so it never takes over the page
-          editorEl.style.overflow = 'auto';     // scroll if it gets long
+          editorEl.style.maxHeight = '320px';
+          editorEl.style.overflow = 'auto';
         }
       });
-
-      // mark as initialised so StrictMode's second effect run does nothing
-      initDoneRef.current = true;
     };
 
     tryInit();

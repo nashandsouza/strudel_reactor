@@ -13,7 +13,7 @@ export default function Transport({
     return (
       <div className={`card h-100 ${playing ? 'playing' : ''}`}>
         <div className="card-body">
-          <h5 className="card-title mb-3"><span className="play-led"/>Transport</h5>
+          <h5 className="card-title mb-3 text-light"><span className="play-led"/>Transport</h5>
   
           <div className="row g-2 mb-3">
             <div className="col-6 d-grid">
@@ -37,7 +37,7 @@ export default function Transport({
             </div>
           </div>
   
-          <label className="form-label">Tempo: {tempo} BPM</label>
+          <label className="form-label text-light">Tempo: {tempo} BPM</label>
           <input
             type="range"
             min={40}
