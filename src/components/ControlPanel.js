@@ -21,14 +21,10 @@ export default function ControlPanel({ ui, setUi }) {
       <div className="card shadow-sm">
         <div className="card-body">
   
-          {/* TITLE */}
           <h5 className="card-title mb-3 d-flex justify-content-between text-light">
             <span>Preprocessor Controls</span>
           </h5>
   
-          {/* ============================================================
-              INSTRUMENT HUSH (P1 / P2)
-          ============================================================ */}
           <h6 className="text-primary mb-2">Instrument Routing</h6>
   
           {["p1", "p2"].map((k) => (
@@ -70,10 +66,7 @@ export default function ControlPanel({ ui, setUi }) {
           ))}
   
           <hr />
-  
-          {/* ============================================================
-              SONG SECTIONS (Bass / Lead / Drums / Drums2)
-          ============================================================ */}
+
           <h6 className="text-info mb-2">Song Sections From Tune</h6>
   
           <ul className="list-group">

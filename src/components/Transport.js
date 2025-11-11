@@ -8,7 +8,7 @@ export default function Transport({
     onMute,
     tempo,
     onTempo,
-    isMuted, // 🔇 show toggle label
+    isMuted, 
   }) {
     return (
       <div className={`card h-100 ${playing ? 'playing' : ''}`}>
