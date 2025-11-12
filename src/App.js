@@ -129,7 +129,7 @@ export default function App() {
 
           {/* RIGHT: D3 Graph + Piano Roll in the SAME card */}
           <div className="col-12 col-xl-4">
-            <SoundBars bands={bands} canvasRef={REPL.canvasRef} />
+          <SoundBars bands={bands} canvasRef={REPL.canvasRef} />
           </div>
         </div>
 

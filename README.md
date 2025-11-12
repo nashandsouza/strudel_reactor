@@ -1,70 +1,57 @@
-# Getting Started with Create React App
+# Project Documentation
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Controls Overview
 
-## Available Scripts
+### **Settings Panel**
+- **Tempo Slider** – updates BPM live using `setcps(bpm/120)`.  
+- **Mute Button** – toggles audio output.  
+- **Play / Stop** – controls Strudel playback.  
+- **Instrument Toggles (p1, p2)** – enable or disable pattern streams.
 
-In the project directory, you can run:
+### **Editor**
+- Built using StrudelMirror (`CodeMirror`).  
+- Accepts Strudel pattern code.  
+- Preprocesses code (e.g., injects tempo).  
+- Errors handled via try/catch — displayed safely.
 
-### `npm start`
+### **Output Panel**
+Displays the preprocessed Strudel code **before** playback begins.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### **Transport Controls**
+- Initializes WebAudio on first user click.  
+- Starts / stops the REPL engine.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### **Piano-Roll Canvas**
+Visualises musical patterns using `drawPianoroll()`.
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Quirks & Notes
 
-### `npm run build`
+> [!NOTE]
+> Browser audio requires user interaction. Playback starts only after your first click.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `setcps()` is auto-inserted if user code does not define tempo.  
+- Some transforms may play correctly but not appear visually.  
+- Editor and output must stay in sync — preprocessing ensures this.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Song Code Used
+List sources used:
 
-### `npm run eject`
+- `stranger_tune`  
+- Bakery patterns such as:
+  - `bd sd bd sd`
+  - `[[superpiano]]`  
+- Any additional borrowed Strudel snippets
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## AI Tools Used
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+**Tool:** ChatGPT  
+**Inputs Provided:** debugging, explanation of React hooks, UI formatting help, README writing  
+**Outputs Used:** rewritten explanations & formatting (all code manually tested)  
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
