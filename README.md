@@ -12,7 +12,6 @@
 - Built using StrudelMirror (`CodeMirror`) so you can type and edit Strudel pattern code with syntax highlighting.  
 - Accepts plain Strudel code (patterns, transforms, tempo changes, etc.) that you would normally run in Strudel.  
 - The text from the editor is passed through a small preprocessing step (for example, making sure tempo is applied consistently).  
-- If the input causes a runtime error, it is caught safely instead of crashing the whole app, and the error can be inspected in the console.
 
 ### **Output Panel**
 - Shows the **final preprocessed Strudel code** that will actually be sent to the engine.  
@@ -43,8 +42,7 @@
 ---
 
 ## Song Code Used
-List sources used in this assignment:
-
+- Stranger Things theme
 ```js
 setcps(0.7);
 
@@ -62,7 +60,7 @@ p2: "<a1 e2>/8"
   .struct("x*8")
   .s("supersaw")
   .note();
-
+```
 
 ## AI Tools Used
 
