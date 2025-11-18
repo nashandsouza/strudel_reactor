@@ -122,10 +122,6 @@ export default function ControlPanel({ ui, setUi }) {
               </div>
             </li>
           </ul>
-  
-          <small className="text-info d-block mt-2">
-            Toggles sections defined in <code>tunes.js</code>
-          </small>
         </div>
       </div>
     );
